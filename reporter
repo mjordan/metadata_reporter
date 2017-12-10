@@ -1,0 +1,83 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Script to fetch OAI-PMH records and report out specific aspects of
+ * the aggregated set of records.
+ */
+
+require 'vendor/autoload.php';
+use League\CLImate\CLImate;
+
+// Read the .ini file.
+if (file_exists(trim($argv[1]))) {
+    $config = parse_ini_file(trim($argv[1]), true);
+} else {
+    print "Cannot find configuration file " . trim($argv[1]) . "\n";
+    exit;
+}
+
+/**
+ * Set up configuration values and log file.
+ */
+$output_dir = $config['general']['output_dir'];
+$endpoint_url = $config['oai']['endpoint'];
+$metadata_prefix = isset($config['oai']['metadata_prefix']) ?  $config['oai']['metadata_prefix'] : 'oai_dc';
+$namespace = isset($config['oai']['namespace']) ?  $config['oai']['namespace'] : 'http://purl.org/dc/elements/1.1/';
+$set_spec = isset($config['oai']['set_spec']) ?  $config['oai']['set_spec'] : null;
+
+$client = new \Phpoaipmh\Client($endpoint_url);
+$endpoint = new \Phpoaipmh\Endpoint($client);
+
+@mkdir($output_dir);
+
+print "Fetching records from $endpoint_url...\n";
+$recs = $endpoint->listRecords($metadata_prefix, null, null, $set_spec);
+
+$num_recs = $recs->getTotalRecordCount();
+if (!is_null($num_recs)) {
+    $climate = new League\CLImate\CLImate;
+    $progress = $climate->progress()->total($num_recs);
+}
+
+$record_num = 0;
+foreach($recs as $rec) {
+    $record_num++;
+    if (!is_null($num_recs)) {
+        $progress->current($record_num);
+    }
+    $identifier = urlencode($rec->header->identifier);
+    $output_path = $output_dir . DIRECTORY_SEPARATOR . $identifier . '.oai.xml';
+    $nodes = get_nodes($rec->asXML(), $namespace);
+
+    var_dump($nodes);
+
+    file_put_contents($output_path, $rec->asXML());
+}
+print "Fetched $record_num records from $endpoint_url.\n";
+
+/**
+ * Selects XPath expressions to elements.
+ *
+ * @param string $oai_record
+ *   The serialized XML of the OAI-PMH record.
+ * @param string $namespace
+ *   The namespace of the metadata we want to
+ *   inspect, e.g., 'oai_dc', 'mods', etc.
+ *
+ * @return array
+ *   An array containing the elements and their values
+ *   in each one of the OAI-PMH records. These elements
+ *   are filtered to the specified namespace.
+ */
+function get_nodes($oai_record, $namespace) {
+    static $nodes = array();
+    $dom = new DOMDocument;
+    $dom->loadXML($oai_record);
+    // @todo: Account for repeated elements.
+    foreach ($dom->getElementsByTagNameNS($namespace, '*') as $node) {
+        $nodes[$node->nodeName] = $node->nodeValue;
+    }
+    return $nodes;
+}
