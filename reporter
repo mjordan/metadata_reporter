@@ -19,8 +19,9 @@ if (file_exists(trim($argv[1]))) {
 }
 
 /**
- * Set up configuration values and log file.
+ * Set up configuration values.
  */
+$save_records = isset($config['general']['save_records']) ?  $config['general']['save_records'] : true;
 $output_dir = $config['general']['output_dir'];
 $endpoint_url = $config['oai']['endpoint'];
 $metadata_prefix = isset($config['oai']['metadata_prefix']) ?  $config['oai']['metadata_prefix'] : 'oai_dc';
@@ -30,7 +31,9 @@ $set_spec = isset($config['oai']['set_spec']) ?  $config['oai']['set_spec'] : nu
 $client = new \Phpoaipmh\Client($endpoint_url);
 $endpoint = new \Phpoaipmh\Endpoint($client);
 
-@mkdir($output_dir);
+if ($save_records) {
+    @mkdir($output_dir);
+}
 
 print "Fetching records from $endpoint_url...\n";
 $recs = $endpoint->listRecords($metadata_prefix, null, null, $set_spec);
@@ -41,21 +44,43 @@ if (!is_null($num_recs)) {
     $progress = $climate->progress()->total($num_recs);
 }
 
+$element_counts = array();
+
 $record_num = 0;
 foreach($recs as $rec) {
     $record_num++;
+    $identifier = urlencode($rec->header->identifier);
+
     if (!is_null($num_recs)) {
         $progress->current($record_num);
     }
-    $identifier = urlencode($rec->header->identifier);
-    $output_path = $output_dir . DIRECTORY_SEPARATOR . $identifier . '.oai.xml';
-    $nodes = get_nodes($rec->asXML(), $namespace);
 
-    var_dump($nodes);
+    // Element count report.
+    $elements = get_elements($rec->asXML(), $namespace);
+    foreach ($elements as $element) {
+        if (array_key_exists($element, $element_counts)) {
+            $element_counts[$element]++;
+        }
+        else {
+            $element_counts[$element] = 1;
+        }
+    }
 
-    file_put_contents($output_path, $rec->asXML());
+    if ($save_records) {
+        $output_path = $output_dir . DIRECTORY_SEPARATOR . $identifier . '.oai.xml';
+        file_put_contents($output_path, $rec->asXML());
+    }
 }
 print "Fetched $record_num records from $endpoint_url.\n";
+
+// Element count report.
+if (isset($config['reports']['reports']) && in_array('element_count', $config['reports']['reports'])) {
+    print "\nElement\tNumber occurances in all records\n";
+    print "========================================\n";
+    foreach ($element_counts as $element => $count) {
+        print "$element\t$count\n";
+    }
+}
 
 /**
  * Selects XPath expressions to elements.
@@ -71,13 +96,13 @@ print "Fetched $record_num records from $endpoint_url.\n";
  *   in each one of the OAI-PMH records. These elements
  *   are filtered to the specified namespace.
  */
-function get_nodes($oai_record, $namespace) {
-    static $nodes = array();
+function get_elements($oai_record, $namespace) {
+    $elements = array();
     $dom = new DOMDocument;
     $dom->loadXML($oai_record);
     // @todo: Account for repeated elements.
-    foreach ($dom->getElementsByTagNameNS($namespace, '*') as $node) {
-        $nodes[$node->nodeName] = $node->nodeValue;
+    foreach ($dom->getElementsByTagNameNS($namespace, '*') as $element) {
+        $elements[] = $element->nodeName;
     }
-    return $nodes;
+    return $elements;
 }

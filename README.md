@@ -17,53 +17,35 @@ To install the reporter:
 
 ## Usage
 
-Run `./reporter test.ini`, where 'test.ini' specifies an output directory, an OAI-PMH entpoint, and a setSpec.
+Run `./reporter test.ini`, where 'test.ini' specifies whether or not to save the records to disk, an output directory, an OAI-PMH entpoint, a setSpec, and a list of reports:
 
 ```
 [general]
-output_dir = test
+save_records = false
+output_dir = records
 
 [oai]
 endpoint = http://digital.lib.sfu.ca/oai2
 set_spec = hiv_collection
+
+[reports]
+reports[] = element_count
 ```
 
-The script will output something like the following:
+Currently, on the 'elementt_count' report is available. The script will output something like the following:
 
 ```
 Fetching records from http://digital.lib.sfu.ca/oai2...
-array(6) {
-  ["dc:title"]=>
-  string(23) "CAMPAÑA CONTRA EL SIDA"
-  ["dc:description"]=>
-  string(11) "65 centavos"
-  ["dc:date"]=>
-  string(4) "2000"
-  ["dc:type"]=>
-  string(10) "StillImage"
-  ["dc:identifier"]=>
-  string(55) "http://content.lib.sfu.ca/cdm/ref/collection/hiv/id/167"
-  ["dc:rights"]=>
-  string(107) "Reproduction of the material is subject to the approval of the Special Collections and Rare Books Librarian"
-}
-array(6) {
-  ["dc:title"]=>
-  string(23) "NACP: COMBATING DISEASE"
-  ["dc:description"]=>
-  string(6) "$12.00"
-  ["dc:date"]=>
-  string(4) "2000"
-  ["dc:type"]=>
-  string(10) "StillImage"
-  ["dc:identifier"]=>
-  string(55) "http://content.lib.sfu.ca/cdm/ref/collection/hiv/id/217"
-  ["dc:rights"]=>
-  string(107) "Reproduction of the material is subject to the approval of the Special Collections and Rare Books Librarian"
-}
-
-[...]
-
 Fetched 73 records from http://digital.lib.sfu.ca/oai2.
+
+Element	Number occurances in all records
+========================================
+dc:title	73
+dc:description	73
+dc:date	73
+dc:type	146
+dc:identifier	292
+dc:rights	73
 ```
 
 ## License
