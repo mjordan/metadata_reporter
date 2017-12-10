@@ -32,7 +32,7 @@ set_spec = hiv_collection
 reports[] = element_count
 ```
 
-Currently, on the 'elementt_count' report is available. The script will output something like the following:
+Currently, only the 'element_count' report is available. The script will output something like the following:
 
 ```
 Fetching records from http://digital.lib.sfu.ca/oai2...
@@ -47,6 +47,10 @@ dc:type	146
 dc:identifier	292
 dc:rights	73
 ```
+
+## To do
+
+* Add 'unique_values' report.
 
 ## License
 
