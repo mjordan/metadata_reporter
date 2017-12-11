@@ -27,6 +27,8 @@ $endpoint_url = $config['oai']['endpoint'];
 $metadata_prefix = isset($config['oai']['metadata_prefix']) ?  $config['oai']['metadata_prefix'] : 'oai_dc';
 $namespace = isset($config['oai']['namespace']) ?  $config['oai']['namespace'] : 'http://purl.org/dc/elements/1.1/';
 $set_spec = isset($config['oai']['set_spec']) ?  $config['oai']['set_spec'] : null;
+$unique_element_values_path = isset($config['reports']['unique_element_values_output_file']) ?
+    $config['reports']['unique_element_values_output_file'] : 'unique_element_values_output_file.txt';
 
 $client = new \Phpoaipmh\Client($endpoint_url);
 $endpoint = new \Phpoaipmh\Endpoint($client);
@@ -44,8 +46,11 @@ if (!is_null($num_recs)) {
     $progress = $climate->progress()->total($num_recs);
 }
 
+// Define variables used in reports.
 $element_counts = array();
+$element_unique_values = array();
 
+// Main program loop.
 $record_num = 0;
 foreach($recs as $rec) {
     $record_num++;
@@ -66,6 +71,23 @@ foreach($recs as $rec) {
         }
     }
 
+    // Unique element values report.
+    $element_values = get_element_values($rec->asXML(), $namespace);
+    foreach ($element_values as $element_name => $values) {
+        if (!in_array($element_name, $element_unique_values)) {
+            $element_unique_values[$element_name] = array();
+        }
+    var_dump($element_unique_values);
+        foreach ($values as $value) {
+            if (!strlen($value)) {
+                $value = 'empty';
+            }
+            if (!in_array($value, $element_unique_values[$element_name])) {
+                $element_unique_values[$element_name][] = $value;
+            }
+        }
+    }
+
     if ($save_records) {
         $output_path = $output_dir . DIRECTORY_SEPARATOR . $identifier . '.oai.xml';
         file_put_contents($output_path, $rec->asXML());
@@ -81,28 +103,74 @@ if (isset($config['reports']['reports']) && in_array('element_count', $config['r
         print "$element\t$count\n";
     }
 }
+// Unique element values report.
+if (isset($config['reports']['reports']) && in_array('unique_element_values', $config['reports']['reports'])) {
+    $output = '';
+    foreach ($element_unique_values as $element => $values) {
+        $output .= $element . "\n========================\n";
+        if (isset($values)) {
+            foreach ($values as $value) {
+                if (isset($value)) {
+                    $output .= $value . "\n";
+                }
+            }
+            $output .= "\n\n";
+        }
+    }
+
+    file_put_contents($unique_element_values_path, $output);
+}
 
 /**
- * Selects XPath expressions to elements.
+ * Gets element names in the OAI-PMH metadata.
  *
  * @param string $oai_record
  *   The serialized XML of the OAI-PMH record.
  * @param string $namespace
- *   The namespace of the metadata we want to
- *   inspect, e.g., 'oai_dc', 'mods', etc.
+ *   The namespace URI of the metadata we want to
+ *   inspect, e.g., http://purl.org/dc/elements/1.1/.
  *
  * @return array
  *   An array containing the elements and their values
  *   in each one of the OAI-PMH records. These elements
- *   are filtered to the specified namespace.
+ *   are filtered to include only those in the specified
+ *   namespace.
  */
 function get_elements($oai_record, $namespace) {
     $elements = array();
     $dom = new DOMDocument;
     $dom->loadXML($oai_record);
-    // @todo: Account for repeated elements.
     foreach ($dom->getElementsByTagNameNS($namespace, '*') as $element) {
         $elements[] = $element->nodeName;
     }
     return $elements;
+}
+
+/**
+ * Parses the XML element values into an array.
+ *
+ * @param string $oai_record
+ *   The serialized XML of the OAI-PMH record.
+ * @param string $namespace
+ *   The namespace URI of the metadata we want to
+ *   inspect, e.g., http://purl.org/dc/elements/1.1/.
+ *
+ * @return array
+ *   An associative array containing element name => element values.
+ */
+function get_element_values($oai_record, $namespace) {
+  $values = array();
+  $dom = new DOMDocument;
+  $dom->loadXML($oai_record);
+  $elements = $dom->getElementsByTagNameNS($namespace, '*');
+  foreach ($elements as $e) {
+    if (!array_key_exists($e->nodeName, $values)) {
+      $values[$e->nodeName] = array();
+      $values[$e->nodeName][] = $e->nodeValue;
+    }
+    else {
+      $values[$e->nodeName][] = $e->nodeValue;
+    }
+  }
+  return $values;
 }
