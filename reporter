@@ -74,13 +74,12 @@ foreach($recs as $rec) {
     // Unique element values report.
     $element_values = get_element_values($rec->asXML(), $namespace);
     foreach ($element_values as $element_name => $values) {
-        if (!in_array($element_name, $element_unique_values)) {
+        if (!array_key_exists($element_name, $element_unique_values)) {
             $element_unique_values[$element_name] = array();
         }
-    var_dump($element_unique_values);
         foreach ($values as $value) {
             if (!strlen($value)) {
-                $value = 'empty';
+                $value = '""';
             }
             if (!in_array($value, $element_unique_values[$element_name])) {
                 $element_unique_values[$element_name][] = $value;
@@ -107,6 +106,7 @@ if (isset($config['reports']['reports']) && in_array('element_count', $config['r
 if (isset($config['reports']['reports']) && in_array('unique_element_values', $config['reports']['reports'])) {
     $output = '';
     foreach ($element_unique_values as $element => $values) {
+        natsort($values);
         $output .= $element . "\n========================\n";
         if (isset($values)) {
             foreach ($values as $value) {
@@ -119,6 +119,7 @@ if (isset($config['reports']['reports']) && in_array('unique_element_values', $c
     }
 
     file_put_contents($unique_element_values_path, $output);
+    print "\nUnique element values report is in $unique_element_values_path.\n";
 }
 
 /**

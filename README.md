@@ -1,6 +1,6 @@
 # Metadata Reporter
 
-Script to report on various aspects of metadata retrieved via OAI-PMH. Currently in inital development.
+Script to report on various aspects of metadata retrieved via OAI-PMH. Currently in early development.
 
 ## System requirements and installation
 
@@ -30,9 +30,11 @@ set_spec = hiv_collection
 
 [reports]
 reports[] = element_count
+reports[] = unique_element_values
+unique_element_values_output_file = element_values.txt
 ```
 
-Currently, only the 'element_count' report is available. The script will output something like the following:
+Currently, only two reports are availalbe, 'element_count' and 'unique_element_values'. The script will output something like the following:
 
 ```
 Fetching records from http://digital.lib.sfu.ca/oai2...
@@ -46,11 +48,15 @@ dc:date	73
 dc:type	146
 dc:identifier	292
 dc:rights	73
+
+Unique element values report is in element_values.txt.
 ```
 
 ## To do
 
-* Add 'unique_values' report.
+* Document configuration defaults.
+* Break our report generators into plugins.
+* Allow reports to be formatted using Twig templates.
 
 ## License
 
