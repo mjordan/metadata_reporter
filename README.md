@@ -51,9 +51,36 @@ dc:rights	73
 
 Unique element values report is in element_values.txt.
 ```
+If you configure the 'unique_element_values' report to run, its output will be in the file located in your .ini file's [reports][unique_element_values_output_file] setting. The file will contain a section for each metadata element used in the set of metadata records, accompanied by a list of unique values in that element. Sample output (showing only two elements for brevity) looks like this:
+
+```
+dc:date
+========================
+""
+1988
+1989
+1990
+1991
+1992
+1993
+1994
+1995
+1996
+1997
+1998
+1999
+2000
+
+
+dc:type
+========================
+StillImage
+postage stamps
+```
 
 ## To do
 
+* Test with OAI-PMH metadata formats other than oai_dc; add configuration option to choose other formats.
 * Document configuration defaults.
 * Break our report generators into plugins.
 * Allow reports to be formatted using Twig templates.
