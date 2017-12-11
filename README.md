@@ -51,7 +51,7 @@ dc:rights	73
 
 Unique element values report is in element_values.txt.
 ```
-If you configure the 'unique_element_values' report to run, its output will be in the file located in your .ini file's [reports][unique_element_values_output_file] setting. The file will contain a section for each metadata element used in the set of metadata records, accompanied by a list of unique values in that element. Sample output (showing only two elements for brevity) looks like this:
+If you configure the 'unique_element_values' report to run, its output will be in the file located in your .ini file's [reports][unique_element_values_output_file] setting. The file will contain a section for each metadata element used in the set of metadata records, accompanied by a list of unique values in that element. Sample output (showing only three Dublin Core elements for brevity) looks like this:
 
 ```
 dc:date
@@ -76,6 +76,12 @@ dc:type
 ========================
 StillImage
 postage stamps
+
+
+dc:rights
+========================
+Reproduction of the material is subject to the approval of the Special Collections and Rare Books Librarian
+
 ```
 
 ## To do
