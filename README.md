@@ -1,6 +1,6 @@
 # Metadata Reporter
 
-Script to report on various aspects of metadata retrieved via OAI-PMH. Currently in early, proof-of-concept development.
+Script to report on various aspects of metadata retrieved via OAI-PMH. Currently in early, proof-of-concept development. Inspired by the [CONTENTdm Collection Inspector](https://github.com/mjordan/cdminspect).
 
 ## System requirements and installation
 
@@ -92,14 +92,15 @@ Reproduction of the material is subject to the approval of the Special Collectio
 
 ```
 
-Note that when applied to hierarchical XML formats like MODS, the 'unique_element_values' shows the text values for parent-level elements as well as for child elements. For example, for the MODS elements `<titleInfo>` and `<title>`, the report will have an entry for each, although the content of `<title>` will ve repeated in the content of `<titleInfo>` because `<title>` is a child of `<titleInfo>`.
+Note that when applied to hierarchical XML formats like MODS, the 'unique_element_values' shows the text values for elements and all child elements. For example, for the MODS snippet `<titleInfo><title>I am a title</title></titleInfo>`, the report will include "I am a title" in the entry for both `<titleInfo>` and `<title>`, because `<title>` is a child of `<titleInfo>`. This is probably not the desired behavior.
 
 ## To do
 
-* Test with OAI-PMH metadata formats other than oai_dc.
-* Provide an option to include the XPath to the elements.
+* Test with OAI-PMH metadata formats other than oai_dc (tested with DC and MODS).
+* Provide an option to display the XPath to the elements.
 * Break our report generators into plugins.
 * Allow reports to be formatted using Twig templates.
+* Add some logging?
 
 ## License
 
