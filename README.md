@@ -97,10 +97,10 @@ Note that when applied to hierarchical XML formats like MODS, the 'unique_elemen
 ## To do
 
 * Test with OAI-PMH metadata formats other than oai_dc (tested with DC and MODS).
+* Add a report that shows which elements have which attributes, plus the unique attribute values.
 * Provide an option to display the XPath to the elements.
 * Break our report generators into plugins.
 * Allow reports to be formatted using Twig templates.
-* Add some logging?
 
 ## License
 
