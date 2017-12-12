@@ -22,7 +22,7 @@ if (file_exists(trim($argv[1]))) {
  * Set up configuration values.
  */
 $save_records = isset($config['general']['save_records']) ?  $config['general']['save_records'] : true;
-$output_dir = $config['general']['output_dir'];
+$output_dir = isset($config['general']['output_dir']) ? $config['general']['output_dir'] : 'records';
 $endpoint_url = $config['oai']['endpoint'];
 $metadata_prefix = isset($config['oai']['metadata_prefix']) ?  $config['oai']['metadata_prefix'] : 'oai_dc';
 $namespace = isset($config['oai']['namespace']) ?  $config['oai']['namespace'] : 'http://purl.org/dc/elements/1.1/';
@@ -107,7 +107,8 @@ if (isset($config['reports']['reports']) && in_array('unique_element_values', $c
     $output = '';
     foreach ($element_unique_values as $element => $values) {
         natsort($values);
-        $output .= $element . "\n========================\n";
+        $element_str_len = strlen($element);
+        $output .= $element . "\n" . str_repeat("=", $element_str_len) . "\n";
         if (isset($values)) {
             foreach ($values as $value) {
                 if (isset($value)) {

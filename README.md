@@ -21,16 +21,20 @@ Run `./reporter test.ini`, where 'test.ini' specifies whether or not to save the
 
 ```
 [general]
+# save_records defaults to true
 save_records = false
-output_dir = records
+# output_dir defaults to records
 
 [oai]
 endpoint = http://digital.lib.sfu.ca/oai2
+# set_spec defaults to none
 set_spec = hiv_collection
+# metadata_prefix and namespace default to oai_dc and http://purl.org/dc/elements/1.1/
 
 [reports]
 reports[] = element_count
 reports[] = unique_element_values
+# Defaults to unique_element_values_output_file.txt
 unique_element_values_output_file = element_values.txt
 ```
 
@@ -90,8 +94,7 @@ Reproduction of the material is subject to the approval of the Special Collectio
 
 ## To do
 
-* Test with OAI-PMH metadata formats other than oai_dc; add configuration option to choose other formats.
-* Document configuration defaults.
+* Test with OAI-PMH metadata formats other than oai_dc.
 * Break our report generators into plugins.
 * Allow reports to be formatted using Twig templates.
 
