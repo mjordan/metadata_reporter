@@ -92,9 +92,12 @@ Reproduction of the material is subject to the approval of the Special Collectio
 
 ```
 
+Note that when applied to hierarchical XML formats like MODS, the 'unique_element_values' shows the text values for parent-level elements as well as for child elements. For example, for the MODS elements `<titleInfo>` and `<title>`, the report will have an entry for each, although the content of `<title>` will ve repeated in the content of `<titleInfo>` because `<title>` is a child of `<titleInfo>`.
+
 ## To do
 
 * Test with OAI-PMH metadata formats other than oai_dc.
+* Provide an option to include the XPath to the elements.
 * Break our report generators into plugins.
 * Allow reports to be formatted using Twig templates.
 
